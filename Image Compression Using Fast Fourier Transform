@@ -1,0 +1,28 @@
+clc;
+clear all;
+close all;
+
+A = imread("Path/To/Image"); %Load the image into array A
+B = rgb2gray(A); %Convert to a grayscale for easier computation
+figure
+imagesc(A) %Display Image
+set(gcf, 'Position', [1500 100 size(A, 2) size(A, 1)])
+
+Bt = fft2(B); %Implement 2D FFT
+Blog = log(abs(fftshift(Bt)+1)); Take logarithmic scaling on the fftshift
+imshow(Blog, []) %Display the image
+set(gcf, 'Position', [1500 100 size(A, 2) size(A, 1)])
+
+Btsort = sort(abs(Bt(:))); %Sort according to absolute values
+counter = 1;
+for keep = [0.99, 0.95, 0.2, 0.1, 0.01, 0.001] %99%, 95%, 20%, 10%, 1%, 0.1%
+    subplot(2, 3, counter);
+    thresh = Btsort(floor((1-keep)*length(Btsort))); %Define threshold value for iteration
+    ind = abs(Bt) > thresh;
+    Atlow = Bt.*ind; %Recalculate for compressed values
+    Alow = uint8(ifft2(Atlow)); %Convert back to time domain
+    imshow(Alow)
+    title(['', num2str(keep*100), '%'], 'FontSize', 36);
+    counter = counter + 1;
+end
+set(gcf, 'Position', [1750, 100, 1750, 2000]);
